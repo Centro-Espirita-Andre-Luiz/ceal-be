@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Criar gestor
-        $manager = User::create([
+        $manager = User::firstOrCreate([
             'name' => 'Gestor Principal',
             'email' => 'gestor@ceal.com',
             'password' => Hash::make('password'),
@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Criar magnetizador
-        $healerUser = User::create([
+        $healerUser = User::firstOrCreate([
             'name' => 'Magnetizador Exemplo',
             'email' => 'magnetizador@ceal.com',
             'password' => Hash::make('password'),
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Criar informações do magnetizador
-        $healer = Healer::create([
+        $healer = Healer::firstOrCreate([
             'user_id' => $healerUser->id,
             'specialty' => 'Magnetoterapia Holística',
             'license_number' => 'MT12345',
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Criar paciente de exemplo
-        Patient::create([
+        Patient::firstOrCreate([
             'name' => 'Paciente Exemplo',
             'email' => 'paciente@ceal.com',
             'birth_date' => '1955-10-20',

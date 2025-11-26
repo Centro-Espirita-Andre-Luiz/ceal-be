@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: laravel
+        uid: 1000
+    container_name: filament_app
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/app.ini
+    networks:
+      - filament-network
+    command: ["php-fpm"]
+
+  webserver:
+    image: nginx:alpine
+    container_name: filament_webserver
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - filament-network
+    depends_on:
+      - app
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: laravel
+        uid: 1000
+    container_name: filament_queue
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - filament-network
+    depends_on:
+      - app
+    command: ["queue"]
+
+networks:
+  filament-network:
+    driver: bridge
