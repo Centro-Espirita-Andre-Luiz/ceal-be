@@ -20,6 +20,11 @@ class Attendance extends Model
         'status',
         'queue_number',
         'notes',
+        'symptoms_status',
+        'pre_notes',
+        'wellness_score',
+        'procedure_report',
+        'magnetizer_notes'
     ];
 
     protected $casts = [

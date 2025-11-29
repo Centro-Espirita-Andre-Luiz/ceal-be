@@ -37,6 +37,7 @@ class AttendancesRelationManager extends RelationManager
                 Forms\Components\DateTimePicker::make('checkin_time')
                     ->required()
                     ->label('Horário de Check-in')
+                    ->native(false)
                     ->default(now()),
                 Forms\Components\DateTimePicker::make('start_time')
                     ->label('Início do Atendimento'),

@@ -52,9 +52,9 @@ class PatientResource extends Resource
                 Forms\Components\Select::make('preferred_healer_id')
                     ->relationship(
                         name: 'preferredHealer',
-                        modifyQueryUsing: fn ($query) => $query->with('user')
+                        modifyQueryUsing: fn($query) => $query->with('user')
                     )
-                    ->getOptionLabelFromRecordUsing(fn (Healer $record) => $record->user->name)
+                    ->getOptionLabelFromRecordUsing(fn(Healer $record) => $record->user->name)
                     ->label('Magnetizador Preferido')
                     ->searchable()
                     ->preload(),
