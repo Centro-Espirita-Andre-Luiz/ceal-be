@@ -95,7 +95,10 @@ jobs:
           DB_DATABASE: testing
           DB_USERNAME: laravel
           DB_PASSWORD: secret
-        run: php artisan migrate --force
+        run: |
+          # Run dependent tables first to satisfy FKs (healers before patients)
+          php artisan migrate --force --path=database/migrations/2025_09_20_175628_create_healers_table.php
+          php artisan migrate --force
 
       - name: Run tests
         env:
