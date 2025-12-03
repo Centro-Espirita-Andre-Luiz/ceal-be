@@ -29,13 +29,20 @@ class CealPanelProvider extends PanelProvider
             ->id('ceal')
             ->path('ceal')
             ->login()
-            ->profile()
             // ->registration()
-            ->passwordReset()
+            // ->passwordReset()
             ->emailVerification()
+            ->profile()
             ->colors([
                 'primary' => Color::Blue,
+                'danger' => Color::Rose,
+                'gray' => Color::Gray,
+                'info' => Color::Blue,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
             ])
+            ->font('Inter')
+            ->favicon(asset('images/favicon.ico'))
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -43,8 +50,9 @@ class CealPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                \App\Filament\Widgets\SystemStatsWidget::class,
+                // \App\Filament\Widgets\UpcomingAppointmentsWidget::class,
+                // \App\Filament\Widgets\TodayAttendancesWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

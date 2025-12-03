@@ -34,7 +34,7 @@ class Absence extends Model
         return $this->belongsTo(Appointment::class);
     }
 
-    public function approvedBy(): BelongsTo
+    public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }

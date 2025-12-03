@@ -13,7 +13,8 @@ class ListAbsences extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('Nova Falta'),
         ];
     }
 }

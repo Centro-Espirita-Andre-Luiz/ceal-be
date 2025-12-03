@@ -15,6 +15,7 @@ class Healer extends Model
         'user_id',
         'specialty',
         'license_number',
+        'bio',
         'active',
     ];
 

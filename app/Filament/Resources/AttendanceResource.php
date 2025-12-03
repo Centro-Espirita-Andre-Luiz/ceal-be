@@ -23,7 +23,7 @@ class AttendanceResource extends Resource
 
     protected static ?string $modelLabel = 'Atendimentos';
 
-    protected static ?string $navigationGroup = 'Atendimentos';
+    protected static ?string $navigationGroup = 'Procedimentos';
 
     public static function form(Form $form): Form
     {
@@ -50,7 +50,6 @@ class AttendanceResource extends Resource
                     ])
                     ->columns(2)
                     ->collapsible(),
-                // Seção Principal (que você já tem)
                 Forms\Components\Section::make('Informações do Atendimento')
                     ->schema([
                         Forms\Components\Select::make('patient_id')
@@ -80,9 +79,11 @@ class AttendanceResource extends Resource
                             ->required()
                             ->default(now()),
                         Forms\Components\DateTimePicker::make('start_time')
-                            ->label('Início do Atendimento'),
+                            ->label('Início do Atendimento')
+                            ->native(false),
                         Forms\Components\DateTimePicker::make('end_time')
-                            ->label('Término do Atendimento'),
+                            ->label('Término do Atendimento')
+                            ->native(false),
                         Forms\Components\Select::make('status')
                             ->options([
                                 'waiting' => 'Aguardando',
@@ -105,7 +106,6 @@ class AttendanceResource extends Resource
                             ->columnSpanFull(),
                     ]),
 
-                // Seção de Pós-Atendimento
                 Forms\Components\Section::make('Pós-Atendimento')
                     ->description('Avaliação após o procedimento')
                     ->schema([
@@ -126,10 +126,6 @@ class AttendanceResource extends Resource
                             ->placeholder('Observações e impressões do magnetizador...')
                             ->columnSpanFull()
                             ->rows(3),
-                        Forms\Components\Textarea::make('notes')
-                            ->label('Observações Gerais')
-                            ->columnSpanFull()
-                            ->rows(2),
                     ])
                     ->columns(2)
                     ->collapsible(),

@@ -11,17 +11,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
     protected static ?string $label = 'Consultas';
-
-    protected static ?string $modelLabel = 'Consultas';
-
-    protected static ?string $navigationIcon = 'heroicon-o-document-check';
+    protected static ?string $modelLabel = 'Consulta';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar';
+    protected static ?string $navigationGroup = 'Procedimentos';
 
     public static function form(Form $form): Form
     {
@@ -38,20 +36,21 @@ class AppointmentResource extends Resource
                         Forms\Components\Select::make('healer_id')
                             ->relationship(
                                 name: 'healer',
-                                modifyQueryUsing: fn($query) => $query->with('user')
+                                titleAttribute: 'user.name',
+                                modifyQueryUsing: fn($query) => $query->where('active', true)->with('user')
                             )
-                            ->getOptionLabelFromRecordUsing(fn($record) => $record->user->name)
+                            ->getOptionLabelFromRecordUsing(fn($record) => $record->user->name ?? 'N/A')
                             ->required()
                             ->label('Magnetizador')
                             ->searchable()
                             ->preload(),
                         Forms\Components\DatePicker::make('scheduled_date')
-                            ->label('Data Agendada')
+                            ->label('Data da Consulta')
                             ->required()
                             ->native(false)
-                            ->minDate(now()),
+                            ->minDate(now()->subDay()),
                         Forms\Components\TimePicker::make('scheduled_time')
-                            ->label('Horário Agendado')
+                            ->label('Horário')
                             ->required()
                             ->seconds(false),
                         Forms\Components\Select::make('status')
@@ -96,6 +95,14 @@ class AppointmentResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(fn($state) => match ($state) {
+                        'scheduled' => 'Agendada',
+                        'confirmed' => 'Confirmada',
+                        'completed' => 'Concluída',
+                        'cancelled' => 'Cancelada',
+                        'no_show' => 'Não Compareceu',
+                        default => $state
+                    })
                     ->color(fn(string $state): string => match ($state) {
                         'scheduled' => 'gray',
                         'confirmed' => 'success',
@@ -106,14 +113,14 @@ class AppointmentResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
                     ->options([
                         'scheduled' => 'Agendada',
                         'confirmed' => 'Confirmada',
                         'completed' => 'Concluída',
                         'cancelled' => 'Cancelada',
                         'no_show' => 'Não Compareceu',
-                    ])
-                    ->label('Status'),
+                    ]),
                 Tables\Filters\Filter::make('scheduled_date')
                     ->form([
                         Forms\Components\DatePicker::make('date_from')
@@ -132,11 +139,17 @@ class AppointmentResource extends Resource
                                 fn(Builder $query, $date): Builder => $query->whereDate('scheduled_date', '<=', $date),
                             );
                     }),
+                Tables\Filters\SelectFilter::make('healer_id')
+                    ->relationship('healer', 'id')
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->user->name ?? 'N/A')->label('Magnetizador')
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\Action::make('confirm')
                     ->label('Confirmar')
                     ->icon('heroicon-o-check')
+                    ->color('success')
                     ->action(function (Appointment $record) {
                         $record->update(['status' => 'confirmed']);
                     })
@@ -144,19 +157,30 @@ class AppointmentResource extends Resource
                 Tables\Actions\Action::make('complete')
                     ->label('Concluir')
                     ->icon('heroicon-o-document-check')
+                    ->color('primary')
                     ->action(function (Appointment $record) {
                         $record->update(['status' => 'completed']);
                     })
                     ->visible(fn(Appointment $record) => in_array($record->status, ['scheduled', 'confirmed'])),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('confirmSelected')
+                        ->label('Confirmar Selecionadas')
+                        ->icon('heroicon-o-check')
+                        ->action(fn($records) => $records->each->update(['status' => 'confirmed'])),
+                    Tables\Actions\BulkAction::make('cancelSelected')
+                        ->label('Cancelar Selecionadas')
+                        ->icon('heroicon-o-x-mark')
+                        ->action(fn($records) => $records->each->update(['status' => 'cancelled'])),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('scheduled_date', 'desc');
     }
+
     public static function getRelations(): array
     {
         return [
@@ -170,6 +194,7 @@ class AppointmentResource extends Resource
             'index' => Pages\ListAppointments::route('/'),
             'create' => Pages\CreateAppointment::route('/create'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
+            'view' => Pages\ViewAppointment::route('/{record}'),
         ];
     }
 }
