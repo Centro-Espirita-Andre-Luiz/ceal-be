@@ -94,9 +94,34 @@ class PatientResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('exportXLSX')
+                    ->label('Exportar Excel')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->tooltip('Exportar dados completos em formato Excel (XLSX)')
+                    ->action(function (Patient $record) {
+                        // Usar o serviço de exportação
+                        $exportService = new \App\Services\PatientExportService();
+                        $export = $exportService->exportToXlsx($record);
+
+                        // Retornar o download
+                        return response()->download(
+                            $export['path'],
+                            $export['filename'],
+                            [
+                                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            ]
+                        )->deleteFileAfterSend(true);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('exportSelected')
+                        ->label('Exportar Selecionados')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(function ($records) {
+                            return self::exportarPacientesSelecionados($records);
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
@@ -127,5 +152,98 @@ class PatientResource extends Resource
         }
 
         return parent::getEloquentQuery()->where('preferred_healer_id', Auth::user()->healerInfo->id);
+    }
+
+    public static function exportarPacienteIndividual(Patient $patient)
+    {
+        $filename = 'paciente_' . $patient->id . '_' . now()->format('Ymd_His') . '.csv';
+        $filepath = storage_path('app/exports/' . $filename);
+
+        // Garantir diretório
+        if (!file_exists(storage_path('app/exports'))) {
+            mkdir(storage_path('app/exports'), 0755, true);
+        }
+
+        $file = fopen($filepath, 'w');
+
+        // Cabeçalhos
+        fputcsv($file, ['Campo', 'Valor']);
+
+        // Função auxiliar para formatar datas
+        $formatarData = function ($date, $format = 'd/m/Y') {
+            if (!$date) return '';
+            try {
+                if ($date instanceof \Carbon\Carbon) {
+                    return $date->format($format);
+                }
+                return \Carbon\Carbon::parse($date)->format($format);
+            } catch (\Exception $e) {
+                return is_string($date) ? $date : '';
+            }
+        };
+
+        // Dados do paciente
+        $dados = [
+            ['ID', $patient->id],
+            ['Nome', $patient->name],
+            ['Email', $patient->email ?? ''],
+            ['Telefone', $patient->phone ?? ''],
+            ['Data Nascimento', $formatarData($patient->birth_date)],
+            ['Contato Emergência', $patient->emergency_contact ?? ''],
+            ['Observações Saúde', $patient->health_notes ?? ''],
+            ['Código Acesso', $patient->access_code ?? ''],
+            ['Magnetizador Preferido', optional($patient->preferredHealer)->user->name ?? 'N/A'],
+            ['Gerente Responsável', optional($patient->manager)->name ?? 'N/A'],
+            ['Data Cadastro', $patient->created_at->format('d/m/Y H:i')],
+        ];
+
+        foreach ($dados as $linha) {
+            fputcsv($file, $linha);
+        }
+
+        fclose($file);
+
+        return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+    }
+
+    public static function exportarPacientesSelecionados($records)
+    {
+        $filename = 'pacientes_selecionados_' . now()->format('Ymd_His') . '.csv';
+        $filepath = storage_path('app/exports/' . $filename);
+
+        if (!file_exists(storage_path('app/exports'))) {
+            mkdir(storage_path('app/exports'), 0755, true);
+        }
+
+        $file = fopen($filepath, 'w');
+
+        // Cabeçalhos
+        fputcsv($file, [
+            'ID',
+            'Nome',
+            'Email',
+            'Telefone',
+            'Data Nascimento',
+            'Contato Emergência',
+            'Magnetizador Preferido',
+            'Data Cadastro'
+        ]);
+
+        foreach ($records as $patient) {
+            fputcsv($file, [
+                $patient->id,
+                $patient->name,
+                $patient->email ?? '',
+                $patient->phone ?? '',
+                $patient->birth_date ? optional($patient->birth_date)->format('d/m/Y') : '', // Usar optional()
+                $patient->emergency_contact ?? '',
+                $patient->preferredHealer ? optional($patient->preferredHealer)->user->name : 'N/A',
+                $patient->created_at->format('d/m/Y H:i'),
+            ]);
+        }
+
+        fclose($file);
+
+        return response()->download($filepath, $filename)->deleteFileAfterSend(true);
     }
 }

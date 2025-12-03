@@ -1,0 +1,77 @@
+/* Aumento geral de fonte */
+body {
+    font-size: 1.1rem !important;
+}
+
+/* Inputs e botões */
+input,
+textarea,
+select,
+button,
+.fi-input,
+.fi-btn {
+    font-size: 1.1rem !important;
+}
+
+/* Tabelas */
+.fi-ta-cell,
+.fi-table-cell {
+    font-size: 1.05rem !important;
+}
+
+.fi-ta-header,
+.fi-table-header-cell {
+    font-size: 1.1rem !important;
+}
+
+/* Cards e seções */
+.fi-card {
+    font-size: 1.1rem !important;
+}
+
+.fi-section-header-heading {
+    font-size: 1.25rem !important;
+}
+
+/* Modal */
+.fi-modal-header-heading {
+    font-size: 1.25rem !important;
+}
+
+.fi-modal-content {
+    font-size: 1.1rem !important;
+}
+
+/* Menu lateral */
+.fi-sidebar-item-label {
+    font-size: 1.05rem !important;
+}
+
+.fi-sidebar-group-label {
+    font-size: 1rem !important;
+}
+
+/* Labels */
+.fi-field-wrapper-label span {
+    font-size: 1.05rem !important;
+    font-weight: 500 !important;
+}
+
+/* Badges */
+.fi-badge {
+    font-size: 0.95rem !important;
+}
+
+/* Ações */
+.fi-ac-action {
+    font-size: 1.05rem !important;
+}
+
+/* Estatísticas no dashboard */
+.fi-wi-stats-overview-stat-value {
+    font-size: 1.5rem !important;
+}
+
+.fi-wi-stats-overview-stat-label {
+    font-size: 1.1rem !important;
+}

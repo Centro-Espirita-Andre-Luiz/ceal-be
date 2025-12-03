@@ -23,6 +23,12 @@ class Patient extends Model
         'manager_id', // ID do gestor que cadastrou
     ];
 
+    protected $casts = [
+        'birth_date' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function preferredHealer(): BelongsTo
     {
         return $this->belongsTo(Healer::class);
