@@ -99,6 +99,8 @@ jobs:
           # Run dependent tables first to satisfy FKs (users -> healers -> patients)
           php artisan migrate --force --path=database/migrations/0001_01_01_000000_create_users_table.php
           php artisan migrate --force --path=database/migrations/2025_09_20_175628_create_healers_table.php
+          # Ensure appointments exists before attendances (FK attendances.appointment_id -> appointments.id)
+          php artisan migrate --force --path=database/migrations/2025_09_20_175636_create_appointments_table.php
           php artisan migrate --force
 
       - name: Run tests
