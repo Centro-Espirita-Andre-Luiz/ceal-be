@@ -96,7 +96,8 @@ jobs:
           DB_USERNAME: laravel
           DB_PASSWORD: secret
         run: |
-          # Run dependent tables first to satisfy FKs (healers before patients)
+          # Run dependent tables first to satisfy FKs (users -> healers -> patients)
+          php artisan migrate --force --path=database/migrations/0001_01_01_000000_create_users_table.php
           php artisan migrate --force --path=database/migrations/2025_09_20_175628_create_healers_table.php
           php artisan migrate --force
 
