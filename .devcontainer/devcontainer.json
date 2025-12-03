@@ -1,0 +1,35 @@
+{
+  "name": "ceal-be DevContainer",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "8.3",
+      "NODE_VERSION": "20"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "forwardPorts": [8000, 5173],
+  "postCreateCommand": "composer install --no-interaction --prefer-dist --no-progress && npm ci",
+  "postStartCommand": "php -r \"file_exists('.env') || copy('.env.example', '.env');\" && php artisan key:generate --force",
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "xdebug.php-pack",
+        "bmewburn.vscode-intelephense-client",
+        "github.vscode-github-actions",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}
