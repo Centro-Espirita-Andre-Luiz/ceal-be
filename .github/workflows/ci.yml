@@ -95,7 +95,17 @@ jobs:
           DB_DATABASE: testing
           DB_USERNAME: laravel
           DB_PASSWORD: secret
-        run: php artisan migrate:fresh --force
+        run: |
+          php artisan migrate:fresh --force --path=database/migrations/0001_01_01_000000_create_users_table.php
+          php artisan migrate --force --path=database/migrations/0001_01_01_000001_create_cache_table.php
+          php artisan migrate --force --path=database/migrations/0001_01_01_000002_create_jobs_table.php
+          php artisan migrate --force --path=database/migrations/2025_09_20_175628_create_healers_table.php
+          php artisan migrate --force --path=database/migrations/2025_09_20_174518_create_patients_table.php
+          php artisan migrate --force --path=database/migrations/2025_09_20_175636_create_appointments_table.php
+          php artisan migrate --force --path=database/migrations/2025_09_20_175632_create_attendances_table.php
+          php artisan migrate --force --path=database/migrations/2025_09_20_175640_create_absences_table.php
+          php artisan migrate --force
+
 
 
       - name: Run tests
