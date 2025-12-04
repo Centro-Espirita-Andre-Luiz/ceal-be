@@ -13,16 +13,16 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    sqlite3 \
-    libsqlite3-dev \
+    default-mysql-client \
     libicu-dev \
-    libzip-dev
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    libzip-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets intl zip
+
+# Install xdebug (opcional para desenvolvimento)
+# RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -45,9 +45,11 @@ COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=$user:$user . /var/www
 
-# Create SQLite database directory
-RUN mkdir -p /var/www/database/database && \
-    chown -R $user:$user /var/www/database
+# Create storage and cache directories
+RUN mkdir -p /var/www/storage/framework/{cache,sessions,views} \
+    && mkdir -p /var/www/storage/logs \
+    && chown -R $user:$user /var/www/storage \
+    && chmod -R 775 /var/www/storage
 
 # Change current user to www
 USER $user
