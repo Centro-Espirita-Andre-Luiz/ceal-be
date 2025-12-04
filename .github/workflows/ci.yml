@@ -113,7 +113,7 @@ jobs:
           DB_DATABASE: testing
           DB_USERNAME: laravel
           DB_PASSWORD: secret
-        run: vendor/bin/phpunit --colors=always --log-junit junit.xml
+        run: php artisan test
 
       - name: Upload JUnit report
         if: always()
