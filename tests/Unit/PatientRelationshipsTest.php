@@ -70,6 +70,6 @@ class PatientRelationshipsTest extends TestCase
 
         $this->assertCount(2, $patient->absences);
         $this->assertInstanceOf(Absence::class, $patient->absences->first());
-        //testCi
+        //testCii
     }
 }
